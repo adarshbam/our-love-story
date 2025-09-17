@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Love+Light&display=swap");
+
 :root {
   --rose: #ff6b88;
   --pink: #ffd9e0;
@@ -30,11 +32,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-inline: auto;
-
-  max-width: 1100px;
-
-  width: 100%;
 
   z-index: 50;
   background-color: rgba(0, 0, 0, 0.3);
@@ -43,6 +40,11 @@ body {
 .nav-inner {
   display: flex;
   align-items: center;
+  margin-inline: auto;
+
+  max-width: 1100px;
+
+  width: 100%;
   width: 100%;
   justify-content: space-between;
 }
@@ -196,13 +198,20 @@ section {
 
 /* timeline */
 .timeline-item {
-  background: var(--card);
+  /* background: var(--card); */
+  font-size: 2rem;
+  color: #fff;
   padding: 12px;
   border-radius: 10px;
   border: 1px solid #f3f4f6;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+}
+
+.timeline-item p {
+  color: #fff;
+  font-family: "Love Light", cursive;
 }
 .timeline-item small {
   color: var(--muted);
@@ -211,7 +220,6 @@ section {
 /* music */
 .embed {
   min-height: 120px;
-  background: #fafafa;
   border-radius: 10px;
   display: grid;
   place-items: center;
@@ -336,4 +344,115 @@ footer {
   .song {
     height: 200px;
   }
+}
+
+/* background audio control */
+.audio-control {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 999;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.95),
+    rgba(255, 240, 245, 0.95)
+  );
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 6px 20px rgba(16, 24, 40, 0.08);
+  cursor: pointer;
+  font-size: 20px;
+  user-select: none;
+}
+
+/* show a subtle playing glow */
+.audio-control.playing {
+  box-shadow: 0 10px 30px rgba(255, 107, 136, 0.12);
+  transform: scale(1.02);
+}
+
+/* when autoplay was blocked, draw attention with a small pulse */
+.audio-control.needs-interaction {
+  animation: pulse 1.6s infinite;
+}
+@keyframes pulse {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-3px) scale(1.03);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* timeline background video */
+#timeline {
+  position: relative;
+  overflow: hidden;
+  padding: 46px;
+  border-radius: 8px;
+}
+
+/* video must cover the section and sit behind content */
+.timeline-bg-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  filter: brightness(1);
+  pointer-events: none; /* allow clicking content above */
+}
+
+/* overlay on top of the video (gradient + play hint) */
+.timeline-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.18),
+    rgba(255, 255, 255, 0.02)
+  );
+}
+
+/* keep real timeline content above video+overlay */
+#timeline > *:not(.timeline-bg-video):not(.timeline-overlay) {
+  position: relative;
+  z-index: 2;
+}
+
+/* play hint/button (shown only when autoplay blocked) */
+.timeline-play-hint {
+  pointer-events: auto; /* allow clicks on the button */
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  transform: translateX(-50%);
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: #ff4f7a;
+  border-radius: 999px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  opacity: 0;
+  transition: opacity 0.28s ease, transform 0.18s ease;
+}
+
+/* visible when needed */
+.timeline-play-hint.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
