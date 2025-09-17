@@ -1,6 +1,61 @@
 // small helpers
 document.getElementById("year").textContent = new Date().getFullYear();
 
+// ----------------- Fade helpers -----------------
+function fadeVolume(media, from, to, duration = 400) {
+  return new Promise((resolve) => {
+    if (!media || typeof media.volume !== "number") return resolve();
+    const start = performance.now();
+    media.volume = Math.max(0, Math.min(1, from));
+    function step(now) {
+      const t = Math.min(1, (now - start) / duration);
+      media.volume = from + (to - from) * t;
+      if (t < 1) requestAnimationFrame(step);
+      else resolve();
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+async function fadeInAndPlay(media, targetVolume = 0.65, duration = 400) {
+  if (!media) return false;
+  try {
+    // set volume to 0 before play to allow audible autoplay in some browsers after gesture
+    media.volume = 0;
+    try {
+      media.load();
+    } catch (e) {}
+    await media.play();
+    // fade up to target
+    await fadeVolume(media, 0, targetVolume, duration);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+async function fadeOutAndPause(media, duration = 300) {
+  if (!media) return;
+  try {
+    // if already paused, ensure volume is restored to stored value and return
+    if (media.paused || media.ended) {
+      // optionally restore default volume property if you stored one
+      return;
+    }
+    const current = typeof media.volume === "number" ? media.volume : 0.6;
+    await fadeVolume(media, current, 0, duration);
+    try {
+      media.pause();
+    } catch (e) {}
+    // restore default volume for future plays (optional)
+    media.volume = current;
+  } catch (e) {
+    try {
+      media.pause();
+    } catch (_) {}
+  }
+}
+
 // gallery modal
 document.querySelectorAll(".tile").forEach((tile) => {
   tile.addEventListener("click", () => {
@@ -134,268 +189,15 @@ document.querySelectorAll(".links a").forEach((a) => {
   // you could persist currentTime periodically and restore it on load.
 })();
 // ---------- Robust timeline video manager (replace previous timelineVideoManager) ----------
-(function timelineVideoManager_v2() {
+// ------- Timeline video manager with fades -------
+(function timelineVideoManager_withFade() {
   const timeline = document.getElementById("timeline");
-  const tv = document.getElementById("timeline-video"); // timeline video element
+  const tv = document.getElementById("timeline-video");
   const playHint = document.getElementById("timeline-play-hint");
   if (!timeline || !tv) return;
 
-  // debug toggle
-  const DBG = false;
-  function log(...s) {
-    if (DBG) console.log("[TL]", ...s);
-  }
-
-  // pause every other audio/video element except `exceptEl`
-  function pauseAllExcept(exceptEl) {
-    document.querySelectorAll("audio, video").forEach((el) => {
-      if (el === exceptEl) return;
-      try {
-        el.pause();
-      } catch (e) {
-        /* ignore */
-      }
-    });
-  }
-
-  // polite attempt to play (load() first, set a gentle default volume on first try)
-  async function attemptPlay() {
-    try {
-      if (
-        tv.tagName &&
-        tv.tagName.toLowerCase() === "video" &&
-        tv.dataset._volSet == null
-      ) {
-        tv.dataset._volSet = "1";
-        tv.volume = 0.65;
-      }
-      try {
-        tv.load();
-      } catch (e) {
-        /* ignore */
-      }
-      await tv.play();
-      log("attemptPlay: succeeded");
-      return true;
-    } catch (err) {
-      log("attemptPlay: blocked or failed", err && err.name);
-      return false;
-    }
-  }
-
-  // pause timeline and hide hint
-  function pauseTimeline() {
-    try {
-      tv.pause();
-    } catch (e) {}
-    if (playHint) playHint.classList.remove("visible");
-  }
-
-  // A resume manager produced per blocked attempt. It installs gesture handlers that
-  // try to play the timeline again and will remove themselves when that attempt succeeds.
-  function makeResumeManager() {
-    let active = true;
-
-    async function onGesture() {
-      if (!active) return;
-      log("resumeManager: user gesture detected, trying play");
-      const ok = await attemptPlay();
-      if (ok) {
-        // video started — cleanup and pause others
-        pauseAllExcept(tv);
-        cleanup();
-      }
-      // if still blocked, keep listening (don't auto-remove)
-    }
-
-    function add() {
-      if (!active) {
-        active = true;
-      }
-      document.addEventListener("click", onGesture, { passive: true });
-      document.addEventListener("touchstart", onGesture, { passive: true });
-      // also try on focus (some browsers resume when tab regains focus)
-      window.addEventListener("focus", onGesture);
-      log("resumeManager: handlers added");
-    }
-
-    function cleanup() {
-      if (!active) return;
-      active = false;
-      document.removeEventListener("click", onGesture);
-      document.removeEventListener("touchstart", onGesture);
-      window.removeEventListener("focus", onGesture);
-      log("resumeManager: handlers removed");
-    }
-
-    // return the manager so caller can remove it explicitly if needed
-    return { add, cleanup };
-  }
-
-  // we store current resume manager (one at a time). Each blocked attempt creates a fresh manager.
   let currentResume = null;
 
-  // Called when timeline is visible: try to start its video/audio
-  async function onVisible() {
-    // If video already playing, nothing to do
-    if (!tv) return;
-    if (!tv.paused && !tv.ended) {
-      log("onVisible: already playing");
-      return;
-    }
-
-    // Always cleanup previous resume manager — we will create a new one below if needed
-    if (currentResume) {
-      currentResume.cleanup();
-      currentResume = null;
-    }
-
-    const started = await attemptPlay();
-    if (started) {
-      // success: hide hint, pause others
-      if (playHint) playHint.classList.remove("visible");
-      pauseAllExcept(tv);
-      return;
-    }
-
-    // blocked: show play hint and attach a fresh resume manager
-    if (playHint) playHint.classList.add("visible");
-    currentResume = makeResumeManager();
-    currentResume.add();
-  }
-
-  // Called when timeline leaves view
-  function onHidden() {
-    // pause the timeline; keep any resume handlers so a subsequent visible event can use them
-    pauseTimeline();
-
-    // we do NOT remove the resume manager here — because we want a fresh one to be created on next visible
-    // however remove any existing as we'll create a new one on the next blocked attempt to avoid stale closures
-    if (currentResume) {
-      currentResume.cleanup();
-      currentResume = null;
-    }
-  }
-
-  // IntersectionObserver to detect visibility
-  if ("IntersectionObserver" in window) {
-    const obs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio > 0.45) {
-            log("IO: timeline visible");
-            onVisible();
-          } else {
-            log("IO: timeline not visible");
-            onHidden();
-          }
-        });
-      },
-      { threshold: [0, 0.45, 0.9] }
-    );
-
-    const elToObserve = timeline; // observe the section itself
-    obs.observe(elToObserve);
-  } else {
-    // fallback on scroll/resize
-    function check() {
-      const r = timeline.getBoundingClientRect();
-      const visible = r.top < window.innerHeight && r.bottom > 0;
-      if (visible) onVisible();
-      else onHidden();
-    }
-    window.addEventListener("scroll", throttle(check, 200), { passive: true });
-    window.addEventListener("resize", throttle(check, 200));
-    // also try on focus in case user switched tabs
-    window.addEventListener("focus", check);
-    check();
-  }
-
-  // clicking the hint tries to play immediately (explicit user gesture)
-  if (playHint) {
-    playHint.addEventListener("click", async (e) => {
-      e.stopPropagation();
-      // if a resume manager exists, let it handle the gesture — but also attempt directly
-      const ok = await attemptPlay();
-      if (ok) {
-        if (currentResume) {
-          currentResume.cleanup();
-          currentResume = null;
-        }
-        pauseAllExcept(tv);
-      } else {
-        // still blocked — ensure we have a resume manager active so the next gesture will start it
-        if (!currentResume) {
-          currentResume = makeResumeManager();
-          currentResume.add();
-        }
-      }
-    });
-  }
-
-  // When the timeline video enters play state, make sure others are paused
-  tv.addEventListener("play", () => {
-    pauseAllExcept(tv);
-    if (playHint) playHint.classList.remove("visible");
-  });
-
-  // When the timeline video is paused by code (not user), we don't force any action.
-  // However, when the user explicitly pauses (if you expose controls), we might want to honor that.
-  tv.addEventListener("pause", () => {
-    // do nothing special here; onVisible will attempt again when section becomes visible
-    log("timeline paused");
-  });
-
-  // Small throttle helper
-  function throttle(fn, wait) {
-    let last = 0;
-    return function (...args) {
-      const now = Date.now();
-      if (now - last >= wait) {
-        last = now;
-        fn.apply(this, args);
-      }
-    };
-  }
-})();
-
-// ---------- Header video resume manager (drop-in) ----------
-(function headerVideoResumeManager() {
-  const headerEl = document.querySelector("header");
-  const hv = document.querySelector(".madamji-video"); // your header video element
-  if (!headerEl || !hv) return;
-
-  // simple helpers
-  const isMedia = (el) => el && typeof el.play === "function";
-  async function tryPlay(media) {
-    if (!isMedia(media)) return false;
-    try {
-      // polite default volume on first try
-      if (
-        media.tagName &&
-        media.tagName.toLowerCase() === "video" &&
-        media.dataset._volSet == null
-      ) {
-        media.dataset._volSet = "1";
-        media.volume = 0.65;
-      }
-      try {
-        media.load();
-      } catch (e) {}
-      await media.play();
-      return true;
-    } catch (err) {
-      return false;
-    }
-  }
-  function safePause(media) {
-    if (isMedia(media)) {
-      try {
-        media.pause();
-      } catch (e) {}
-    }
-  }
-
   function pauseAllExcept(exceptEl) {
     document.querySelectorAll("audio, video").forEach((el) => {
       if (el === exceptEl) return;
@@ -405,32 +207,17 @@ document.querySelectorAll(".links a").forEach((a) => {
     });
   }
 
-  // create or get play hint button inside header
-  let hint = document.getElementById("header-play-hint");
-  if (!hint) {
-    hint = document.createElement("button");
-    hint.id = "header-play-hint";
-    hint.className = "header-play-hint";
-    hint.title = "Play header audio";
-    hint.textContent = "▶";
-    // keep pointer events enabled only on the button (header video is pointer-events none usually)
-    hint.style.pointerEvents = "auto";
-    headerEl.appendChild(hint);
-  }
-
-  // Each blocked attempt gets its own resume manager — removed when that attempt succeeds
-  function makeResumeManagerFor(media) {
+  function makeResumeManager(media) {
     let active = true;
     async function onGesture() {
       if (!active) return;
-      const ok = await tryPlay(media);
+      const ok = await fadeInAndPlay(media, 0.65, 400);
       if (ok) {
         pauseAllExcept(media);
         cleanup();
       }
     }
     function add() {
-      if (!active) active = true;
       document.addEventListener("click", onGesture, { passive: true });
       document.addEventListener("touchstart", onGesture, { passive: true });
       window.addEventListener("focus", onGesture);
@@ -443,80 +230,53 @@ document.querySelectorAll(".links a").forEach((a) => {
       window.removeEventListener("focus", onGesture);
     }
     add();
-    return { cleanup, onGesture };
+    return { cleanup };
   }
 
-  let currentResume = null;
-
-  async function onHeaderVisible() {
-    // if already playing, nothing to do
-    if (!hv.paused && !hv.ended) return;
-
-    // remove any old resume manager (we'll create a fresh one if needed)
+  async function tryStartTimeline() {
+    if (!tv.paused && !tv.ended) return;
     if (currentResume) {
       currentResume.cleanup();
       currentResume = null;
     }
-
-    const started = await tryPlay(hv);
-    if (started) {
-      hint.classList.remove("visible");
-      pauseAllExcept(hv);
-      return;
-    }
-
-    // blocked — show hint and create a fresh resume manager for this attempt
-    hint.classList.add("visible");
-    currentResume = makeResumeManagerFor(hv);
-  }
-
-  function onHeaderHidden() {
-    // pause header video; remove hint; cleanup resume manager so next visible creates new manager
-    safePause(hv);
-    hint.classList.remove("visible");
-    if (currentResume) {
-      currentResume.cleanup();
-      currentResume = null;
-    }
-  }
-
-  // clicking hint tries to play immediately (explicit gesture)
-  hint.addEventListener("click", async (e) => {
-    e.stopPropagation();
-    const ok = await tryPlay(hv);
+    const ok = await fadeInAndPlay(tv, 0.65, 400);
     if (ok) {
-      if (currentResume) {
-        currentResume.cleanup();
-        currentResume = null;
-      }
-      hint.classList.remove("visible");
-      pauseAllExcept(hv);
-    } else {
-      // if still blocked ensure resume manager exists
-      if (!currentResume) currentResume = makeResumeManagerFor(hv);
+      pauseAllExcept(tv);
+      if (playHint) playHint.classList.remove("visible");
+      return true;
     }
-  });
+    if (playHint) playHint.classList.add("visible");
+    currentResume = makeResumeManager(tv);
+    return false;
+  }
 
-  // use IntersectionObserver for visibility
+  async function stopTimeline() {
+    await fadeOutAndPause(tv, 300);
+    if (playHint) playHint.classList.remove("visible");
+    if (currentResume) {
+      currentResume.cleanup();
+      currentResume = null;
+    }
+  }
+
   if ("IntersectionObserver" in window) {
     const obs = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && entry.intersectionRatio > 0.45)
-            onHeaderVisible();
-          else onHeaderHidden();
+            tryStartTimeline();
+          else stopTimeline();
         });
       },
       { threshold: [0, 0.45, 0.9] }
     );
-    obs.observe(headerEl);
+    obs.observe(timeline);
   } else {
-    // fallback using scroll/resize
     function check() {
-      const r = headerEl.getBoundingClientRect();
-      const visible = r.top < window.innerHeight && r.bottom > 0;
-      if (visible) onHeaderVisible();
-      else onHeaderHidden();
+      const r = timeline.getBoundingClientRect();
+      r.top < window.innerHeight && r.bottom > 0
+        ? tryStartTimeline()
+        : stopTimeline();
     }
     window.addEventListener("scroll", throttle(check, 200), { passive: true });
     window.addEventListener("resize", throttle(check, 200));
@@ -524,22 +284,160 @@ document.querySelectorAll(".links a").forEach((a) => {
     check();
   }
 
-  hv.addEventListener("play", () => {
-    pauseAllExcept(hv);
-    hint.classList.remove("visible");
-  });
+  if (playHint) {
+    playHint.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const ok = await fadeInAndPlay(tv, 0.65, 400);
+      if (ok) {
+        if (currentResume) {
+          currentResume.cleanup();
+          currentResume = null;
+        }
+        pauseAllExcept(tv);
+      } else {
+        if (!currentResume) {
+          currentResume = makeResumeManager(tv);
+        }
+      }
+    });
+  }
 
-  hv.addEventListener("pause", () => {
-    // do nothing — onHeaderVisible will try again next time it becomes visible
+  tv.addEventListener("play", () => pauseAllExcept(tv));
+  tv.addEventListener("pause", () => {
+    /* no-op */
   });
 
   function throttle(fn, wait) {
     let last = 0;
-    return function (...args) {
+    return function (...a) {
       const now = Date.now();
       if (now - last >= wait) {
         last = now;
-        fn.apply(this, args);
+        fn.apply(this, a);
+      }
+    };
+  }
+})();
+
+// ------- Header video manager with fades -------
+(function headerVideoManager_withFade() {
+  const headerEl = document.querySelector("header");
+  const hv = document.querySelector(".madamji-video"); // header video element
+  if (!headerEl || !hv) return;
+
+  let currentResume = null;
+
+  function pauseAllExcept(exceptEl) {
+    document.querySelectorAll("audio, video").forEach((el) => {
+      if (el === exceptEl) return;
+      try {
+        el.pause();
+      } catch (e) {}
+    });
+  }
+
+  function makeResumeManager(media) {
+    let active = true;
+    async function onGesture() {
+      if (!active) return;
+      const ok = await fadeInAndPlay(media, 0.65, 400);
+      if (ok) {
+        pauseAllExcept(media);
+        cleanup();
+      }
+    }
+    function add() {
+      document.addEventListener("click", onGesture, { passive: true });
+      document.addEventListener("touchstart", onGesture, { passive: true });
+      window.addEventListener("focus", onGesture);
+    }
+    function cleanup() {
+      if (!active) return;
+      active = false;
+      document.removeEventListener("click", onGesture);
+      document.removeEventListener("touchstart", onGesture);
+      window.removeEventListener("focus", onGesture);
+    }
+    add();
+    return { cleanup };
+  }
+
+  async function tryStartHeader() {
+    // try play with fade
+    if (!hv.paused && !hv.ended) return;
+    if (currentResume) {
+      currentResume.cleanup();
+      currentResume = null;
+    }
+    const ok = await fadeInAndPlay(hv, 0.65, 400);
+    if (ok) {
+      pauseAllExcept(hv);
+      // hide hint if you have one
+      const hint = document.getElementById("header-play-hint");
+      if (hint) hint.classList.remove("visible");
+      return true;
+    }
+    // blocked: make fresh resume manager and show hint
+    if (currentResume) {
+      currentResume.cleanup();
+      currentResume = null;
+    }
+    currentResume = makeResumeManager(hv);
+    const hint = document.getElementById("header-play-hint");
+    if (hint) hint.classList.add("visible");
+    return false;
+  }
+
+  async function stopHeader() {
+    // fade out then pause
+    await fadeOutAndPause(hv, 300);
+    const hint = document.getElementById("header-play-hint");
+    if (hint) hint.classList.remove("visible");
+    if (currentResume) {
+      currentResume.cleanup();
+      currentResume = null;
+    }
+  }
+
+  // observe visibility
+  if ("IntersectionObserver" in window) {
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > 0.45)
+            tryStartHeader();
+          else stopHeader();
+        });
+      },
+      { threshold: [0, 0.45, 0.9] }
+    );
+    obs.observe(headerEl);
+  } else {
+    function check() {
+      const r = headerEl.getBoundingClientRect();
+      r.top < window.innerHeight && r.bottom > 0
+        ? tryStartHeader()
+        : stopHeader();
+    }
+    window.addEventListener("scroll", throttle(check, 200), { passive: true });
+    window.addEventListener("resize", throttle(check, 200));
+    window.addEventListener("focus", check);
+    check();
+  }
+
+  // ensure when user manually plays header we pause others
+  hv.addEventListener("play", () => pauseAllExcept(hv));
+  hv.addEventListener("pause", () => {
+    /* nothing special — resumed later */
+  });
+
+  function throttle(fn, wait) {
+    let last = 0;
+    return function (...a) {
+      const now = Date.now();
+      if (now - last >= wait) {
+        last = now;
+        fn.apply(this, a);
       }
     };
   }
