@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>For You — A Little Corner</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="nav-inner">
+        <div class="brand">
+          <div class="logo">💌</div>
+          <div>
+            <div style="font-weight: 700; color: #eee">For You</div>
+            <div style="font-size: 0.85rem; color: var(--muted)">
+              A little corner
+            </div>
+          </div>
+        </div>
+        <div class="links">
+          <a href="#about">About</a><a href="#gallery">Gallery</a
+          ><a href="#timeline">Timeline</a><a href="#contact">Contact</a>
+        </div>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <!-- Replace src with your video file, e.g. /videos/hero.mp4 -->
+      <video
+        src="/cutie-ki-files/Madamji-Sundar-lagri-hain.mp4"
+        autoplay
+        muted
+        loop
+        playsinline
+      ></video>
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <h1 class="fade-in">
+          For <span style="color: var(--pink)">You</span>, Always.
+        </h1>
+        <p class="fade-in" style="animation-delay: 0.08s">
+          A tiny place on the web to hold our memories — photos, little notes,
+          and the soundtrack that brings them back.
+        </p>
+        <div class="cta fade-in" style="animation-delay: 0.16s">
+          <button
+            class="btn btn-primary"
+            onclick="document.querySelector('#gallery').scrollIntoView({behavior:'smooth'})"
+          >
+            Gallery
+          </button>
+          <button
+            class="btn btn-ghost"
+            onclick="document.querySelector('#contact').scrollIntoView({behavior:'smooth'})"
+          >
+            Say hi
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="container">
+      <section class="card">
+        <img
+          class="portrait"
+          src="/cutie-ki-files/Cutie-ki-pfp.png"
+          alt="portrait"
+        />
+        <div style="flex: 1">
+          <h3 style="margin: 0">A little note</h3>
+          <p style="margin: 0.4rem 0 0; color: var(--muted)">
+            This is a small site where I collect moments that make me smile —
+            photos, silly captions, and the songs that remind me of you.
+          </p>
+        </div>
+        <div>
+          <a
+            class="btn"
+            style="background: var(--pink); color: #111"
+            href="#timeline"
+            >See our timeline</a
+          >
+        </div>
+      </section>
+
+      <section id="gallery">
+        <h2 style="margin: 0">Gallery</h2>
+        <p style="color: var(--muted); margin-top: 0.25rem">
+          A few snapshots — click any to open larger.
+        </p>
+        <div class="grid" style="margin-top: 1rem">
+          <!-- Replace these image paths with your own -->
+          <div class="tile">
+            <img
+              src="/cutie-ki-files/Couple Photo of me and my madmji.png"
+              alt="1"
+            />
+            <div class="caption">Caption for photo 1</div>
+          </div>
+          <div class="tile">
+            <img
+              src="/cutie-ki-files/Couple Photo of me and my madmji 2.jpg"
+              alt="2"
+            />
+            <div class="caption">Caption for photo 2</div>
+          </div>
+          <div class="tile">
+            <img
+              src="/cutie-ki-files/Couple Photo of me and my madmji 3.jpg"
+              alt="3"
+            />
+            <div class="caption">Caption for photo 3</div>
+          </div>
+          <div class="tile">
+            <img src="/cutie-ki-files/AI1.jpg" alt="4" />
+            <div class="caption">Caption for photo 4</div>
+          </div>
+          <div class="tile">
+            <img src="/cutie-ki-files/AI2.jpg" alt="5" />
+            <div class="caption">Caption for photo 5</div>
+          </div>
+          <div class="tile">
+            <img src="/cutie-ki-files/cutiepieblackandwhite.jpg" alt="6" />
+            <div class="caption">Caption for photo 6</div>
+          </div>
+          <div class="tile">
+            <img src="/cutie-ki-files/cutiepieinlehenga.jpeg" alt="7" />
+            <div class="caption">Caption for photo 7</div>
+          </div>
+          <div class="tile">
+            <img src="/cutie-ki-files/Cutie1.jpg" alt="8" />
+            <div class="caption">Caption for photo 8</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="timeline">
+        <h2 style="margin: 0">Our Little Timeline</h2>
+        <div style="margin-top: 1rem; display: grid; gap: 0.6rem">
+          <div class="timeline-item">
+            <div>
+              <strong>When we met</strong>
+              <div style="font-size: 0.85rem; color: var(--muted)">
+                2025-05-26
+              </div>
+              <p style="margin: 0.4rem 0 0; color: #333">
+                Ek ladki ne mera cheerk park me gaadi fodd di. Main gusse mein
+                aaya bolne ki meri gaadi kyun todi baatmeez. Lekin fhir DP dekhi
+                tb bola ki lekin ladki cute toh hai. And then main apko chidhane
+                laga ki gaal tamatar jaise hain. And apke gaane churane laga
+                fhir maine ek gana aisa ga diya jisse aap comfortable nhi the.
+                Tb apne bola ki pls ye gana mt gao aur maine maan li. Fhir apne
+                socha ki ladka toh accha hain dil se. And then apke piche cheer
+                ke log pad gaye jaise ki hota hai fhir maine cycle se apko
+                baccha liya usne. Fhir thodi flirt aur meri awaj sunne ke baad
+                apne insta manga mera. Ki abhi do insta aur tum do ho skta hai
+                mera insta lekar kabhi msg hi na karo. Fhir thoda thoda line
+                marti the ye ladki mujhpe aur mujhe sharm aata tha aur inhe aur
+                maja aata fhir ye aur line marte.
+              </p>
+            </div>
+            <div style="font-size: 1.6rem; color: var(--pink)">♥</div>
+          </div>
+          <div class="timeline-item">
+            <div>
+              <strong>When we met</strong>
+              <div style="font-size: 0.85rem; color: var(--muted)">
+                2025-05-30
+              </div>
+              <p style="margin: 0.4rem 0 0; color: #333">
+                Raatme hum baat kar rahe the aur apka 6 ghante pure ho gaye. Tb
+                humne voice call insta pe kiya lekin nett chal rha tha awaj
+                bahut katt rahi thi. Fhir apne bola ki number share karoge. Fhir
+                number pe call karke. Uss raatme hum subah ke 4 baje tk ajeeb
+                ajeeb baatein kiye. Imagation waale duniya me lee gaya apne main
+                apko. Ek insaan jo 11 to 12 tk so jata wo itti deer jaga. Fhir
+                maine socha ladki ki saath itti acchi vibe match kar rahi hai
+                aur acche ghar se hai aur harkatein bhi khareeb nhi hain mtlv
+                cool banne ki kosish nhi karti jaisi hai khudme magan rhti aur
+                cute toh bahut hi zyada hai. Toh maine uss din propose kar diya.
+                Kya mansi aap mere jaise boring insaan ke saath ek boring
+                zindagi bita ke zab hamare daat gir jaaye aur uske baad bhi
+                saath nibhana chengi. Waise ye kinda overkill tha lekin yahi
+                apun ka style hai aur ye kaam krr gaya.
+              </p>
+            </div>
+            <div style="font-size: 1.6rem; color: var(--pink)">♥</div>
+          </div>
+          <div class="timeline-item">
+            <div>
+              <strong>Huge Fight</strong>
+              <div style="font-size: 0.85rem; color: var(--muted)">
+                2025-09-15
+              </div>
+              <p style="margin: 0.4rem 0 0; color: #333">
+                1 Day ki fight kyunki misunderstanding ho gayi ek dosre ke beech
+                me. <br />Lekin abhi 1 din ke baad theek ho gaya sb kuch.
+              </p>
+            </div>
+            <div style="font-size: 1.6rem; color: var(--pink)">♥</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="music">
+        <h2 style="margin: 0">Soundtrack</h2>
+        <p style="color: var(--muted); margin-top: 0.25rem">
+          Press play and let the memories roll.
+        </p>
+        <div class="embed" style="margin-top: 1rem">
+          <p>
+            You always ask me what I thought my girlfriend would be like? Here
+            my answer.
+          </p>
+          <iframe
+            width="560"
+            height="315"
+            src="https://www.youtube.com/embed/hR0MOXXNCGA?si=fdZPHRFmzl4eCCck"
+            title="YouTube video player"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+          ></iframe>
+          <p>When you say you don't good then my heart says.</p>
+          <audio src="cutie-ki-files/Tere hawale.mp3" controls></audio>
+        </div>
+      </section>
+
+      <section id="contact" style="margin-bottom: 4rem">
+        <h2 style="margin: 0">Send a note</h2>
+        <p style="color: var(--muted); margin-top: 0.25rem">
+          A little message box for sweet notes.
+        </p>
+        <form id="noteForm" style="margin-top: 1rem">
+          <input id="name" placeholder="Your name" />
+          <input id="email" placeholder="Email (optional)" />
+          <textarea
+            id="message"
+            placeholder="Write something lovely..."
+          ></textarea>
+          <div
+            style="
+              display: flex;
+              gap: 0.6rem;
+              align-items: center;
+              justify-content: flex-end;
+              margin-top: 0.2rem;
+            "
+          >
+            <button type="submit">Send</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <footer>© <span id="year"></span> — Built with love</footer>
+
+    <!-- modal for image preview -->
+    <div id="modal" class="modal" aria-hidden="true">
+      <div class="inner"><img id="modalImg" src="" alt="preview" /></div>
+    </div>
+  </body>
+</html>
