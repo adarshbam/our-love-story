@@ -1,7 +1,8 @@
-﻿# ✨ Our Love Story — Interactive Memory Timeline
+# ✨ Our Love Story — Interactive Memory Timeline
 
 <div align="center">
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white)](https://our-sweet-love-story.netlify.app/)
 [![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
 [![CSS3](https://img.shields.io/badge/CSS3_Animations-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
 [![JavaScript](https://img.shields.io/badge/Vanilla_JS-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
@@ -10,6 +11,8 @@
 <p align="center">
   <strong>An interactive digital timeline built with smooth CSS keyframes, interactive flip cards, and pure DOM animations.</strong>
 </p>
+
+<h3><a href="https://our-sweet-love-story.netlify.app/">🌐 Explore Live Interactive Timeline</a></h3>
 
 </div>
 
@@ -23,6 +26,7 @@ A personalized interactive timeline application engineered to capture and displa
 
 ## ✨ Features & Highlights
 
+- **🌐 Live Web Experience:** Hosted and accessible globally at [our-sweet-love-story.netlify.app](https://our-sweet-love-story.netlify.app/).
 - **🎞️ Interactive Timeline Navigation:** Sequential milestone cards with scroll-triggered animations.
 - **✨ CSS Keyframe Transitions:** Smooth 60 FPS transitions and hover effects with zero external UI libraries.
 - **📱 Responsive Layout:** Clean flexbox and grid layouts optimized for mobile and desktop screens.
@@ -34,18 +38,20 @@ A personalized interactive timeline application engineered to capture and displa
 - **Markup:** HTML5
 - **Styles:** CSS3 (Animations, Flexbox/Grid, Responsive Media Queries)
 - **Scripting:** Vanilla JavaScript (DOM Manipulation)
+- **Deployment:** Netlify
 
 ---
 
-## 🚀 Quick Preview
+## 🚀 Local Setup & Preview
 
-`ash
+```bash
 # 1. Clone the repository
 git clone https://github.com/adarshbam/our-love-story.git
 cd our-love-story
 
 # 2. Open index.html in any modern browser
-`
+# Or visit the live build: https://our-sweet-love-story.netlify.app/
+```
 
 ---
 
