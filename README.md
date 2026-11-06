@@ -1,60 +1,47 @@
-# ✨ Our Love Story — Interactive Memory Timeline
+# Our Love Story
 
-<div align="center">
+A personal memory site combining photographs, a relationship timeline, video, and music. I built it as a gift for my girlfriend.
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white)](https://our-sweet-love-story.netlify.app/)
-[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
-[![CSS3](https://img.shields.io/badge/CSS3_Animations-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
-[![JavaScript](https://img.shields.io/badge/Vanilla_JS-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-[![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg?style=for-the-badge)](LICENSE)
+**[Explore the live site](https://our-sweet-love-story.netlify.app/)**
 
-<p align="center">
-  <strong>An interactive digital timeline built with smooth CSS keyframes, interactive flip cards, and pure DOM animations.</strong>
-</p>
+## What it contains
 
-<h3><a href="https://our-sweet-love-story.netlify.app/">🌐 Explore Live Interactive Timeline</a></h3>
+- A gallery with a larger-image modal.
+- Timeline sections and navigation between memories.
+- Background music controls with remembered playback preference.
+- Video visibility handling that coordinates playback with other media.
 
-</div>
+HTML · CSS · JavaScript. There is no application backend or npm build step.
 
----
+## Source map
 
-## 📖 Overview
+| File | Responsibility |
+| --- | --- |
+| [index.html](index.html) | Page sections, gallery, timeline, and media elements |
+| [style.css](style.css) | Layout, responsive rules, and visual presentation |
+| [script.js](script.js) | Modal behavior, audio fades/preferences, and visibility-driven media handling |
 
-A personalized interactive timeline application engineered to capture and display relationship memories through clean visual cards, smooth entry transitions, and custom animations.
-
----
-
-## ✨ Features & Highlights
-
-- **🌐 Live Web Experience:** Hosted and accessible globally at [our-sweet-love-story.netlify.app](https://our-sweet-love-story.netlify.app/).
-- **🎞️ Interactive Timeline Navigation:** Sequential milestone cards with scroll-triggered animations.
-- **✨ CSS Keyframe Transitions:** Smooth 60 FPS transitions and hover effects with zero external UI libraries.
-- **📱 Responsive Layout:** Clean flexbox and grid layouts optimized for mobile and desktop screens.
-
----
-
-## 🛠️ Tech Stack
-
-- **Markup:** HTML5
-- **Styles:** CSS3 (Animations, Flexbox/Grid, Responsive Media Queries)
-- **Scripting:** Vanilla JavaScript (DOM Manipulation)
-- **Deployment:** Netlify
-
----
-
-## 🚀 Local Setup & Preview
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/adarshbam/our-love-story.git
-cd our-love-story
-
-# 2. Open index.html in any modern browser
-# Or visit the live build: https://our-sweet-love-story.netlify.app/
+```mermaid
+flowchart TD
+    Page[HTML sections] --> Gallery[Gallery and image modal]
+    Page --> Timeline[Timeline and video]
+    Script[Browser event handlers] --> Gallery
+    Script --> Media[Coordinated audio and video]
+    Media --> Preference[Local playback preference]
 ```
 
----
+## Run locally
 
-<div align="center">
-  <sub>Crafted with ❤️ by <a href="https://github.com/adarshbam">Adarsh Singh</a></sub>
-</div>
+Serve the repository root with a static HTTP server; root-relative media paths assume root hosting. With Python installed:
+
+```sh
+python -m http.server 8080 --bind 127.0.0.1
+```
+
+Open `http://127.0.0.1:8080`. No package installation is needed. The embedded external video and local media have separate availability/codec dependencies.
+
+## Review notes
+
+Check section navigation, image-modal open/close behavior, sound controls, stored playback preference, and media entering/leaving the viewport. Browser autoplay policy can still require a user gesture. No automated regression suite or measured frame-rate/accessibility guarantee is asserted here.
+
+The project intentionally keeps its personal story and visual character. No license file is currently included, so the previous MIT badge did not establish permission to reuse the code or media. Do not republish personal photographs, music, or third-party video merely because they are referenced by a public site.
